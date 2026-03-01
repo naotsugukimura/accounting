@@ -2,9 +2,27 @@ import { QuizQuestion, QuizStats } from "@/lib/types";
 
 const STORAGE_KEY = "accounting-quiz-stats";
 
+function shuffleOptions(question: QuizQuestion): QuizQuestion {
+  if (question.type === "fill_in_blank" || !question.options) {
+    return question;
+  }
+
+  const shuffledOptions = [...question.options];
+  for (let i = shuffledOptions.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffledOptions[i], shuffledOptions[j]] = [shuffledOptions[j], shuffledOptions[i]];
+  }
+
+  return {
+    ...question,
+    options: shuffledOptions,
+    correctIndex: shuffledOptions.indexOf(question.correctAnswer),
+  };
+}
+
 export function shuffleQuestions(questions: QuizQuestion[], limit = 10): QuizQuestion[] {
   const shuffled = [...questions].sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, limit);
+  return shuffled.slice(0, limit).map(shuffleOptions);
 }
 
 export function getQuizStats(): QuizStats {
