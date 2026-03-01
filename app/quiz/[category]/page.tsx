@@ -4,8 +4,21 @@ import { useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { quizQuestions, quizCategories } from "@/data/quiz-questions";
+import { caseStudyQuestions } from "@/data/case-study-questions";
+import { advancedAccountingQuestions } from "@/data/advanced-accounting-questions";
+import { businessStrategyQuestions } from "@/data/business-strategy-questions";
 import { shuffleQuestions, saveQuizResult } from "@/lib/quiz-utils";
 import { QuizQuestion, AnswerResult } from "@/lib/types";
+import ResultAnalysis from "@/components/quiz/ResultAnalysis";
+
+function getAllQuestions(): QuizQuestion[] {
+  return [
+    ...quizQuestions,
+    ...caseStudyQuestions,
+    ...advancedAccountingQuestions,
+    ...businessStrategyQuestions,
+  ];
+}
 
 export default function QuizSessionPage() {
   const params = useParams();
@@ -21,7 +34,8 @@ export default function QuizSessionPage() {
   const [isComplete, setIsComplete] = useState(false);
 
   useEffect(() => {
-    const categoryQuestions = quizQuestions.filter((q) => q.category === category);
+    const all = getAllQuestions();
+    const categoryQuestions = all.filter((q) => q.category === category);
     setQuestions(shuffleQuestions(categoryQuestions, 10));
   }, [category]);
 
@@ -65,8 +79,8 @@ export default function QuizSessionPage() {
 
   const handleNext = () => {
     if (currentIndex + 1 >= questions.length) {
-      const finalScore = answers.filter((a) => a.isCorrect).length;
-      saveQuizResult(category, finalScore, questions.length);
+      const totalCorrect = answers.filter((a) => a.isCorrect).length;
+      saveQuizResult(category, totalCorrect, questions.length);
       setIsComplete(true);
     } else {
       setCurrentIndex((prev) => prev + 1);
@@ -74,6 +88,18 @@ export default function QuizSessionPage() {
       setFillAnswer("");
       setShowResult(false);
     }
+  };
+
+  const handleRetry = () => {
+    const all = getAllQuestions();
+    const categoryQuestions = all.filter((q) => q.category === category);
+    setQuestions(shuffleQuestions(categoryQuestions, 10));
+    setCurrentIndex(0);
+    setAnswers([]);
+    setSelectedOption(null);
+    setFillAnswer("");
+    setShowResult(false);
+    setIsComplete(false);
   };
 
   if (!categoryInfo) {
@@ -97,29 +123,20 @@ export default function QuizSessionPage() {
 
   // Complete screen
   if (isComplete) {
-    const percentage = Math.round((score / questions.length) * 100);
-    const gradeColor =
-      percentage >= 90
-        ? "text-yellow-600"
-        : percentage >= 70
-        ? "text-green-600"
-        : percentage >= 50
-        ? "text-orange-600"
-        : "text-red-600";
-
     return (
       <div className="max-w-3xl mx-auto px-4 py-8">
-        <div className="bg-white rounded-2xl p-8 shadow-md text-center mb-8">
-          <h1 className="text-xl font-bold mb-2">{categoryInfo.name} - 結果</h1>
-          <div className={`text-5xl font-bold my-6 ${gradeColor}`}>
-            {percentage}%
-          </div>
-          <p className="text-gray-600">
-            {questions.length}問中 {score}問正解
-          </p>
-        </div>
+        <h1 className="text-xl font-bold mb-6 text-center">{categoryInfo.name} — 結果</h1>
 
-        <div className="space-y-3 mb-8">
+        <ResultAnalysis
+          answers={answers}
+          questions={questions}
+          score={score}
+          total={questions.length}
+        />
+
+        {/* Answer review */}
+        <div className="mt-8 space-y-3 mb-8">
+          <h2 className="text-sm font-bold text-gray-700">解答履歴</h2>
           {answers.map((answer, i) => (
             <div
               key={answer.questionId}
@@ -130,11 +147,11 @@ export default function QuizSessionPage() {
               }`}
             >
               <div className="flex items-start gap-2">
-                <span className="text-sm font-bold">
+                <span className="text-sm font-bold shrink-0">
                   {answer.isCorrect ? "○" : "×"}
                 </span>
-                <div className="flex-1">
-                  <p className="text-sm font-medium">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium line-clamp-2">
                     Q{i + 1}. {answer.question}
                   </p>
                   {!answer.isCorrect && (
@@ -150,16 +167,7 @@ export default function QuizSessionPage() {
 
         <div className="flex gap-4 justify-center">
           <button
-            onClick={() => {
-              const categoryQuestions = quizQuestions.filter((q) => q.category === category);
-              setQuestions(shuffleQuestions(categoryQuestions, 10));
-              setCurrentIndex(0);
-              setAnswers([]);
-              setSelectedOption(null);
-              setFillAnswer("");
-              setShowResult(false);
-              setIsComplete(false);
-            }}
+            onClick={handleRetry}
             className="bg-orange-500 text-white px-6 py-3 rounded-xl font-bold hover:bg-orange-600 transition-colors"
           >
             もう一度
@@ -196,7 +204,7 @@ export default function QuizSessionPage() {
 
       {/* Question */}
       <div className="bg-white rounded-2xl p-6 shadow-md mb-6">
-        <p className="text-lg font-bold mb-6">{currentQuestion.question}</p>
+        <p className="text-lg font-bold mb-6 whitespace-pre-wrap">{currentQuestion.question}</p>
 
         {currentQuestion.type === "multiple_choice" ? (
           <div className="space-y-3">
@@ -248,7 +256,7 @@ export default function QuizSessionPage() {
         {/* Explanation */}
         {showResult && (
           <div className="mt-4 bg-blue-50 rounded-xl p-4">
-            <p className="text-sm text-blue-800">{currentQuestion.explanation}</p>
+            <p className="text-sm text-blue-800 whitespace-pre-wrap">{currentQuestion.explanation}</p>
           </div>
         )}
       </div>

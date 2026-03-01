@@ -74,13 +74,24 @@ export type QuestionType = "multiple_choice" | "fill_in_blank";
 export type QuizQuestion = {
   id: string;
   type: QuestionType;
-  category: "pl" | "bs" | "cf" | "indicators" | "case-study";
+  category:
+    | "pl"
+    | "bs"
+    | "cf"
+    | "indicators"
+    | "case-study"
+    | "advanced-accounting-1"
+    | "advanced-accounting-2"
+    | "advanced-accounting-3"
+    | "business-strategy";
   question: string;
   options?: string[];
   correctAnswer: string;
   correctIndex?: number;
   acceptableAnswers?: string[];
   explanation: string;
+  tags?: string[];
+  session?: number;
 };
 
 export type AnswerResult = {

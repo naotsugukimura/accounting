@@ -497,4 +497,28 @@ export const quizCategories = [
     description: "架空企業3年間のPL・BS・CFを組み合わせた実践的判断力クイズ",
     questionCount: 10,
   },
+  {
+    id: "advanced-accounting-1",
+    name: "会計上級 Day1：PL・BS複合分析",
+    description: "製造業・SaaS・小売業を題材にデュポン分析・CCC・粗利率など応用問題",
+    questionCount: 10,
+  },
+  {
+    id: "advanced-accounting-2",
+    name: "会計上級 Day2：CF・会計処理",
+    description: "間接法・IFRS16・棚卸評価・税効果会計・持分法など実務的な問題",
+    questionCount: 10,
+  },
+  {
+    id: "advanced-accounting-3",
+    name: "会計上級 Day3：企業価値・M&A",
+    description: "EV/EBITDA・DCF・ROIC・WACC・財務不正を含む上級分析問題",
+    questionCount: 10,
+  },
+  {
+    id: "business-strategy",
+    name: "ビジネス戦略（最上級）",
+    description: "LTV/CAC・NDR・TAM/SAM/SOM・ネットワーク効果・Moatなど新規事業に直結する最難問",
+    questionCount: 10,
+  },
 ];
